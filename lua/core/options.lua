@@ -72,3 +72,6 @@ vim.api.nvim_create_autocmd("TextYankPost", {
 vim.schedule(function()
 	vim.o.clipboard = "unnamedplus"
 end)
+
+-- if a file is modified outside of vim in re-read it
+vim.opt.autoread = true

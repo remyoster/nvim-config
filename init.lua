@@ -26,6 +26,7 @@ rtp:prepend(lazypath)
 --
 -- NOTE: Here is where you install your plugins.
 require("lazy").setup({
+	require("plugins.treesitter"),
 	require("plugins.neotree"),
 	require("plugins.colortheme"),
 	require("plugins.lualine"),
@@ -36,4 +37,5 @@ require("lazy").setup({
 	require("plugins.autoformatting"),
 	require("plugins.indent-blankline"),
 	require("plugins.misc"),
+	require("plugins.autotag"),
 })

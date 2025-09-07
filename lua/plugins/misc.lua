@@ -34,4 +34,8 @@ return {
 			require("colorizer").setup()
 		end,
 	},
+	{
+		-- diffview
+		"sindrets/diffview.nvim",
+	},
 }
