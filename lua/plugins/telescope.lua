@@ -38,12 +38,12 @@ return { -- Fuzzy Finder (files, lsp, etc)
 			},
 			pickers = {
 				find_files = {
-					file_ignore_patterns = { "node_modules", ".git" },
+					file_ignore_patterns = { "node_modules", ".git", ".DS_Store" },
 					hidden = true,
 				},
 			},
 			live_grep = {
-				file_ignore_patterns = { "node_modules", ".git" },
+				file_ignore_patterns = { "node_modules", ".git", ".DS_Store" },
 				additional_args = function(_)
 					return { "--hidden = true" }
 				end,
