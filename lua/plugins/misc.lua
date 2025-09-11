@@ -38,4 +38,6 @@ return {
 		-- diffview
 		"sindrets/diffview.nvim",
 	},
+	-- merge conflict resolver (moreless same as vscode)
+	{ "akinsho/git-conflict.nvim", version = "*", config = true },
 }
