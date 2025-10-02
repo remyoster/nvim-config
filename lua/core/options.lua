@@ -75,3 +75,5 @@ end)
 
 -- if a file is modified outside of vim in re-read it
 vim.opt.autoread = true
+-- add borders on vim windows (like pressing K)
+vim.o.winborder = "rounded"
