@@ -133,6 +133,17 @@ return {
 						vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled({ bufnr = event.buf }))
 					end, "[T]oggle Inlay [H]ints")
 				end
+
+				-- Run only for the ESLint LSP
+				if client and client.name == "eslint" then
+					-- Create a BufWritePre autocmd to run before saving
+					vim.api.nvim_create_autocmd("BufWritePre", {
+						buffer = event.buf,
+						callback = function()
+							vim.cmd("LspEslintFixAll")
+						end,
+					})
+				end
 			end,
 		})
 
@@ -204,6 +215,7 @@ return {
 					},
 				},
 			},
+			prismals = {},
 
 			lua_ls = {
 				-- cmd = { ... },
@@ -231,14 +243,6 @@ return {
 			},
 			jsonls = {},
 		}
-		require("lspconfig").eslint.setup({
-			on_attach = function(client, bufnr)
-				vim.api.nvim_create_autocmd("BufWritePre", {
-					buffer = bufnr,
-					command = "EslintFixAll",
-				})
-			end,
-		})
 
 		-- Ensure the servers and tools above are installed
 		--

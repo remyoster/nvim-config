@@ -69,9 +69,9 @@ vim.api.nvim_create_autocmd("TextYankPost", {
 })
 
 -- sync clipboard between OS and neovim
-vim.schedule(function()
-	vim.o.clipboard = "unnamedplus"
-end)
+-- vim.schedule(function()
+-- 	vim.o.clipboard = "unnamedplus"
+-- end)
 
 -- if a file is modified outside of vim in re-read it
 vim.opt.autoread = true

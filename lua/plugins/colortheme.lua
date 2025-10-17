@@ -10,6 +10,7 @@ return {
 				operators = false,
 				folds = false,
 			},
+			bold = false,
 			contrast = "hard",
 			overrides = {
 				DiffText = { bg = "#3b8132" },

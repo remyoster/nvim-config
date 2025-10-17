@@ -24,7 +24,7 @@ return {
 
 		local diff = {
 			"diff",
-			colored = false,
+			colored = true,
 			symbols = { added = " ", modified = " ", removed = " " }, -- changes diff symbols
 			cond = hide_in_width,
 		}
@@ -45,7 +45,6 @@ return {
 				lualine_x = {
 					diagnostics,
 					diff,
-					{ "encoding", cond = hide_in_width },
 					{ "filetype", cond = hide_in_width },
 				},
 				lualine_y = { "location" },
