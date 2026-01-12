@@ -40,4 +40,6 @@ return {
 	},
 	-- merge conflict resolver (moreless same as vscode)
 	{ "akinsho/git-conflict.nvim", version = "*", config = true },
+	-- copilot
+	{ "github/copilot.vim" },
 }

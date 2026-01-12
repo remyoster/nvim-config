@@ -216,6 +216,7 @@ return {
 				},
 			},
 			prismals = {},
+			sqlls = {},
 
 			lua_ls = {
 				-- cmd = { ... },
@@ -242,6 +243,7 @@ return {
 				},
 			},
 			jsonls = {},
+			yamlls = {},
 		}
 
 		-- Ensure the servers and tools above are installed

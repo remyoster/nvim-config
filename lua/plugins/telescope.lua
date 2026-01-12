@@ -45,7 +45,7 @@ return { -- Fuzzy Finder (files, lsp, etc)
 			live_grep = {
 				file_ignore_patterns = { "node_modules", ".git", ".DS_Store" },
 				additional_args = function(_)
-					return { "--hidden = true" }
+					return { "--hidden" }
 				end,
 			},
 			extensions = {
