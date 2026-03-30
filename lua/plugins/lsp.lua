@@ -136,11 +136,29 @@ return {
 
 				-- Run only for the ESLint LSP
 				if client and client.name == "eslint" then
-					-- Create a BufWritePre autocmd to run before saving
+					-- Use a named group to prevent duplicate autocmds if ESLint re-attaches
+					local group = vim.api.nvim_create_augroup("EslintFixOnSave_" .. event.buf, { clear = true })
 					vim.api.nvim_create_autocmd("BufWritePre", {
 						buffer = event.buf,
+						group = group,
 						callback = function()
-							vim.cmd("LspEslintFixAll")
+							local bufnr = vim.api.nvim_get_current_buf()
+							local eslint_clients = vim.lsp.get_clients({ bufnr = bufnr, name = "eslint" })
+							if #eslint_clients == 0 then
+								return
+							end
+							local c = eslint_clients[1]
+							local params = vim.lsp.util.make_range_params(0, c.offset_encoding)
+							params.context = { only = { "source.fixAll.eslint" }, diagnostics = {} }
+							local result = c.request_sync("textDocument/codeAction", params, 2000, bufnr)
+							if not result or not result.result then
+								return
+							end
+							for _, action in ipairs(result.result) do
+								if action.edit then
+									vim.lsp.util.apply_workspace_edit(action.edit, c.offset_encoding)
+								end
+							end
 						end,
 					})
 				end
