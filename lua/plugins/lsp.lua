@@ -150,7 +150,7 @@ return {
 							local c = eslint_clients[1]
 							local params = vim.lsp.util.make_range_params(0, c.offset_encoding)
 							params.context = { only = { "source.fixAll.eslint" }, diagnostics = {} }
-							local result = c.request_sync("textDocument/codeAction", params, 2000, bufnr)
+							local result = c:request_sync("textDocument/codeAction", params, 2000, bufnr)
 							if not result or not result.result then
 								return
 							end
@@ -282,6 +282,8 @@ return {
 			"stylua", -- Used to format Lua code
 			"prettier",
 			"prettierd",
+			-- tree-sitter-cli intentionally NOT managed by mason: its 0.26+ binaries
+			-- need glibc 2.39 (Ubuntu 22.04 has 2.35). Installed via cargo instead.
 		})
 		require("mason-tool-installer").setup({ ensure_installed = ensure_installed })
 

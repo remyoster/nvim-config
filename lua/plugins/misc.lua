@@ -28,8 +28,8 @@ return {
 		opts = {},
 	},
 	{
-		-- High-performance color highlighter
-		"norcalli/nvim-colorizer.lua",
+		-- High-performance color highlighter (maintained fork of norcalli's)
+		"catgoose/nvim-colorizer.lua",
 		config = function()
 			require("colorizer").setup()
 		end,
@@ -40,6 +40,4 @@ return {
 	},
 	-- merge conflict resolver (moreless same as vscode)
 	{ "akinsho/git-conflict.nvim", version = "*", config = true },
-	-- copilot
-	{ "github/copilot.vim" },
 }
