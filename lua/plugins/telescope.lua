@@ -38,15 +38,23 @@ return { -- Fuzzy Finder (files, lsp, etc)
 			},
 			pickers = {
 				find_files = {
-					file_ignore_patterns = { "node_modules", ".git", ".DS_Store" },
+					file_ignore_patterns = { "node_modules", "%.git/", ".DS_Store" },
 					hidden = true,
 				},
-			},
-			live_grep = {
-				file_ignore_patterns = { "node_modules", ".git", ".DS_Store" },
-				additional_args = function(_)
-					return { "--hidden" }
-				end,
+				live_grep = {
+					file_ignore_patterns = {
+						"node_modules",
+						"%.git/",
+						"%.DS_Store",
+						"bun%.lock",
+						"package%-lock%.json",
+						"yarn%.lock",
+						"pnpm%-lock%.yaml",
+					},
+					additional_args = function(_)
+						return { "--hidden" }
+					end,
+				},
 			},
 			extensions = {
 				["ui-select"] = {
@@ -64,6 +72,15 @@ return { -- Fuzzy Finder (files, lsp, etc)
 		vim.keymap.set("n", "<leader>sh", builtin.help_tags, { desc = "[S]earch [H]elp" })
 		vim.keymap.set("n", "<leader>sk", builtin.keymaps, { desc = "[S]earch [K]eymaps" })
 		vim.keymap.set("n", "<leader>sf", builtin.find_files, { desc = "[S]earch [F]iles" })
+		vim.keymap.set("n", "<leader>sa", function()
+			builtin.find_files({
+				prompt_title = "Search All Files",
+				hidden = true,
+				no_ignore = true,
+				-- Lua patterns: escape the dot, anchor dirs with "/" so ".git/" doesn't swallow ".github/"
+				file_ignore_patterns = { "node_modules/", "%.git/", "%.DS_Store", "%.turbo/", "dist/", "generated/" },
+			})
+		end, { desc = "[S]earch [A]ll files (hidden + ignored)" })
 		vim.keymap.set("n", "<leader>ss", builtin.builtin, { desc = "[S]earch [S]elect Telescope" })
 		vim.keymap.set("n", "<leader>sw", builtin.grep_string, { desc = "[S]earch current [W]ord" })
 		vim.keymap.set("n", "<leader>sg", builtin.live_grep, { desc = "[S]earch by [G]rep" })
