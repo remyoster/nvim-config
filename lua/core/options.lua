@@ -18,6 +18,10 @@ vim.opt.wrap = false
 vim.opt.swapfile = false
 -- don't create backup file
 vim.opt.backup = false
+-- write in place instead of rename-and-replace: the "auto" strategy probes a
+-- directory by creating and deleting a file named 4913, and prisma-language-server
+-- crashes (unhandled ENOENT on lstat) when it watches that dir
+vim.opt.backupcopy = "yes"
 -- currently not used but can be usefull with undodir plug
 vim.opt.undodir = os.getenv("HOME") .. "/.vim/undodir"
 -- save undo history

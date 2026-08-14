@@ -134,31 +134,25 @@ return {
 					end, "[T]oggle Inlay [H]ints")
 				end
 
-				-- Run only for the ESLint LSP
-				if client and client.name == "eslint" then
-					-- Use a named group to prevent duplicate autocmds if ESLint re-attaches
-					local group = vim.api.nvim_create_augroup("EslintFixOnSave_" .. event.buf, { clear = true })
+				-- Run only for the oxlint LSP: apply safe autofixes (unused imports, ...)
+				-- before conform formats the buffer on save.
+				if client and client.name == "oxlint" then
+					-- Use a named group to prevent duplicate autocmds if oxlint re-attaches
+					local group = vim.api.nvim_create_augroup("OxlintFixOnSave_" .. event.buf, { clear = true })
 					vim.api.nvim_create_autocmd("BufWritePre", {
 						buffer = event.buf,
 						group = group,
 						callback = function()
 							local bufnr = vim.api.nvim_get_current_buf()
-							local eslint_clients = vim.lsp.get_clients({ bufnr = bufnr, name = "eslint" })
-							if #eslint_clients == 0 then
+							local oxlint_clients = vim.lsp.get_clients({ bufnr = bufnr, name = "oxlint" })
+							if #oxlint_clients == 0 then
 								return
 							end
-							local c = eslint_clients[1]
-							local params = vim.lsp.util.make_range_params(0, c.offset_encoding)
-							params.context = { only = { "source.fixAll.eslint" }, diagnostics = {} }
-							local result = c:request_sync("textDocument/codeAction", params, 2000, bufnr)
-							if not result or not result.result then
-								return
-							end
-							for _, action in ipairs(result.result) do
-								if action.edit then
-									vim.lsp.util.apply_workspace_edit(action.edit, c.offset_encoding)
-								end
-							end
+							local c = oxlint_clients[1]
+							c:request_sync("workspace/executeCommand", {
+								command = "oxc.fixAll",
+								arguments = { { uri = vim.uri_from_bufnr(bufnr) } },
+							}, 2000, bufnr)
 						end,
 					})
 				end
@@ -210,7 +204,12 @@ return {
 		--  - settings (table): Override the default settings passed when initializing the server.
 		--        For example, to see the options for `lua_ls`, you could go to: https://luals.github.io/wiki/settings/
 		local servers = {
-			vtsls = {
+			-- TypeScript 7 dropped tsserver, so vtsls (which drives it, bundling TS
+			-- 5.8) cannot serve TS 7 projects. In TS 7 the compiler binary IS the
+			-- language server: `tsc --lsp --stdio`. The cmd override targets the
+			-- workspace's stable tsc rather than lspconfig's default `tsgo`, which
+			-- only ships as a prerelease of @typescript/native-preview.
+			tsgo = {
 				settings = {
 					typescript = {
 						preferences = {
@@ -223,15 +222,54 @@ return {
 						},
 					},
 				},
+				cmd = function(dispatchers, config)
+					local cmd = "tsc"
+					local root = (config or {}).root_dir
+					if root then
+						local local_cmd = vim.fs.joinpath(root, "node_modules", ".bin", "tsc")
+						if vim.fn.executable(local_cmd) == 1 then
+							cmd = local_cmd
+						end
+					end
+					-- A stale install can hoist an older tsc to node_modules/.bin, and only
+					-- TS 7 serves `--lsp`. Without this check the server exits with
+					-- "Unknown compiler option '--lsp'" and nvim reports no TS LSP at all.
+					local version = vim.trim(vim.fn.system({ cmd, "--version" }))
+					if not version:match("^Version 7%.") then
+						vim.notify(
+							("tsgo: %s is %q, needs TS 7 for --lsp. Run `bun install`."):format(cmd, version),
+							vim.log.levels.ERROR
+						)
+						return
+					end
+					return vim.lsp.rpc.start({ cmd, "--lsp", "--stdio" }, dispatchers)
+				end,
 			},
-			eslint = {
-				settings = {
-					enable = true,
-					codeActionOnSave = {
-						enable = true,
-						mode = "all",
-					},
-				},
+			oxlint = {
+				-- lspconfig anchors on the nearest .oxlintrc.json, which spawns one server
+				-- per package in a monorepo. Anchoring on the package-manager lock keeps a
+				-- single server for the workspace and resolves the repo-pinned binary;
+				-- oxlint still picks up nested configs per file.
+				root_dir = function(bufnr, on_dir)
+					local lock_root = vim.fs.root(bufnr, {
+						"bun.lock",
+						"bun.lockb",
+						"pnpm-lock.yaml",
+						"yarn.lock",
+						"package-lock.json",
+					})
+					if lock_root then
+						on_dir(lock_root)
+						return
+					end
+					local oxlintrc = vim.fs.find(
+						{ ".oxlintrc.json", ".oxlintrc.jsonc" },
+						{ path = vim.api.nvim_buf_get_name(bufnr), upward = true }
+					)[1]
+					if oxlintrc then
+						on_dir(vim.fs.dirname(oxlintrc))
+					end
+				end,
 			},
 			prismals = {},
 			sqlls = {},
@@ -277,7 +315,10 @@ return {
 		--
 		-- You can add other tools here that you want Mason to install
 		-- for you, so that they are available from within Neovim.
-		local ensure_installed = vim.tbl_keys(servers or {})
+		-- tsgo has no mason package: it runs from the workspace's own typescript.
+		local ensure_installed = vim.tbl_filter(function(name)
+			return name ~= "tsgo"
+		end, vim.tbl_keys(servers or {}))
 		vim.list_extend(ensure_installed, {
 			"stylua", -- Used to format Lua code
 			"prettier",

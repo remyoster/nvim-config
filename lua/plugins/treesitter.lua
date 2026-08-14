@@ -18,6 +18,7 @@ return { -- Highlight, edit, and navigate code
 			"dockerfile",
 			"toml",
 			"json",
+			"prisma",
 			"gitignore",
 			"yaml",
 			"make",

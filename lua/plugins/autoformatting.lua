@@ -30,10 +30,12 @@ return { -- Autoformat
 		end,
 		formatters_by_ft = {
 			lua = { "stylua" },
-			javascript = { "prettierd", "prettier", stop_after_first = true },
-			typescript = { "prettierd", "prettier", stop_after_first = true },
-			javascriptreact = { "prettierd", "prettier", stop_after_first = true },
-			typescriptreact = { "prettierd", "prettier", stop_after_first = true },
+			-- oxfmt resolves from the project's node_modules; in projects without
+			-- it, conform skips to prettierd/prettier.
+			javascript = { "oxfmt", "prettierd", "prettier", stop_after_first = true },
+			typescript = { "oxfmt", "prettierd", "prettier", stop_after_first = true },
+			javascriptreact = { "oxfmt", "prettierd", "prettier", stop_after_first = true },
+			typescriptreact = { "oxfmt", "prettierd", "prettier", stop_after_first = true },
 			json = { "prettierd", "prettier", stop_after_first = true },
 			yaml = { "prettierd", "prettier", stop_after_first = true },
 		},
