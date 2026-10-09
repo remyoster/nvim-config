@@ -206,10 +206,8 @@ return {
 		local servers = {
 			-- TypeScript 7 dropped tsserver, so vtsls (which drives it, bundling TS
 			-- 5.8) cannot serve TS 7 projects. In TS 7 the compiler binary IS the
-			-- language server: `tsc --lsp --stdio`. The cmd override targets the
-			-- workspace's stable tsc rather than lspconfig's default `tsgo`, which
-			-- only ships as a prerelease of @typescript/native-preview.
-			tsgo = {
+			-- language server: `tsc --lsp --stdio`.
+			tsc = {
 				settings = {
 					typescript = {
 						preferences = {
@@ -237,7 +235,7 @@ return {
 					local version = vim.trim(vim.fn.system({ cmd, "--version" }))
 					if not version:match("^Version 7%.") then
 						vim.notify(
-							("tsgo: %s is %q, needs TS 7 for --lsp. Run `bun install`."):format(cmd, version),
+							("tsc: %s is %q, needs TS 7 for --lsp. Run `bun install`."):format(cmd, version),
 							vim.log.levels.ERROR
 						)
 						return
@@ -315,9 +313,9 @@ return {
 		--
 		-- You can add other tools here that you want Mason to install
 		-- for you, so that they are available from within Neovim.
-		-- tsgo has no mason package: it runs from the workspace's own typescript.
+		-- tsc has no mason package: it runs from the workspace's own typescript.
 		local ensure_installed = vim.tbl_filter(function(name)
-			return name ~= "tsgo"
+			return name ~= "tsc"
 		end, vim.tbl_keys(servers or {}))
 		vim.list_extend(ensure_installed, {
 			"stylua", -- Used to format Lua code
